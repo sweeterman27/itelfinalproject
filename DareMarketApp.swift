@@ -21,6 +21,7 @@ struct DareItem: Identifiable {
     let title: String
     let category: String
     let time: String
+    let prize: String
 }
 
 // MARK: - App Entry
@@ -110,6 +111,7 @@ struct MainContainerView: View {
     @Binding var isWalletConnected: Bool
     @State private var selectedTab = 0
     @State private var isShowingPlaceDare = false
+    @State private var isShowingCreateDare = false
     @State private var selectedMarketTitle = ""
     @State private var isShowingWalletModal = false
     
@@ -127,7 +129,7 @@ struct MainContainerView: View {
                 case 0: ExploreView(isWalletConnected: isWalletConnected, onTapDare: { title in
                     selectedMarketTitle = title
                     isShowingPlaceDare = true
-                }, onConnect: { isShowingWalletModal = true })
+                }, onConnect: { isShowingWalletModal = true }, onOpenCreate: { isShowingCreateDare = true })
                 case 1: FeedView()
                 case 2: LeaderboardView()
                 case 3: ProfileView(isWalletConnected: $isWalletConnected)
@@ -153,6 +155,9 @@ struct MainContainerView: View {
         }
         .sheet(isPresented: $isShowingPlaceDare) {
             PlaceDareModal(title: selectedMarketTitle)
+        }
+        .sheet(isPresented: $isShowingCreateDare) {
+            CreateDareModal()
         }
         .sheet(isPresented: $isShowingWalletModal) {
             WalletModal(isConnected: $isWalletConnected)
@@ -200,6 +205,7 @@ struct ExploreView: View {
     var isWalletConnected: Bool
     var onTapDare: (String) -> Void
     var onConnect: () -> Void
+    var onOpenCreate: () -> Void
     
     @Namespace var namespace
     @State private var selectedBento: String? = nil
@@ -207,7 +213,7 @@ struct ExploreView: View {
     let categories = ["All", "Crypto", "Stocks", "Sports", "Politics"]
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
                     TickerView()
@@ -285,7 +291,7 @@ struct ExploreView: View {
                         
                         VStack(spacing: 12) {
                             ForEach(MockData.getDares(for: activeCategory)) { dare in
-                                FeatureCard(title: dare.title, category: dare.category, time: dare.time, onTap: { onTapDare(dare.title) })
+                                FeatureCard(title: dare.title, category: dare.category, time: dare.time, prize: dare.prize, onTap: { onTapDare(dare.title) })
                                     .transition(.scale.combined(with: .opacity))
                             }
                         }
@@ -294,6 +300,19 @@ struct ExploreView: View {
                 }
                 .padding(.vertical, 20)
             }
+            
+            // Floating Action Button (+)
+            Button(action: onOpenCreate) {
+                Image(systemName: "plus")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.black)
+                    .frame(width: 56, height: 56)
+                    .background(DareTheme.accent)
+                    .clipShape(Circle())
+                    .shadow(color: DareTheme.accent.opacity(0.4), radius: 10, x: 0, y: 5)
+            }
+            .padding(.trailing, 20)
+            .padding(.bottom, 20)
             
             // Detail Overlay
             if let id = selectedBento {
@@ -490,12 +509,14 @@ struct FeatureCard: View {
     let title: String
     let category: String
     let time: String
+    let prize: String
     let onTap: () -> Void
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.system(size: 16, weight: .bold))
                 Text("\(category) • Ends in \(time)").font(.system(size: 12)).foregroundColor(.white.opacity(0.5))
+                Text("Prize Pool: \(prize)").font(.system(size: 12, weight: .bold)).foregroundColor(DareTheme.accent)
             }
             Spacer()
             Button(action: onTap) {
@@ -739,6 +760,33 @@ struct DetailSection: View {
     }
 }
 
+struct CreateDareModal: View {
+    @Environment(\.dismiss) var dismiss
+    var body: some View {
+        ZStack {
+            DareTheme.background.ignoresSafeArea()
+            VStack(spacing: 30) {
+                HStack {
+                    Text("CREATE NEW DARE").font(.bold()).foregroundColor(DareTheme.accent)
+                    Spacer()
+                    Button { dismiss() } label: { Image(systemName: "xmark.circle.fill").font(.title) }
+                }
+                
+                VStack(spacing: 20) {
+                    TextField("Title (e.g. BTC to $100k)", text: .constant(""))
+                        .padding().background(DareTheme.glassMaterial())
+                    TextField("Prize Pool (e.g. $5,000)", text: .constant(""))
+                        .padding().background(DareTheme.glassMaterial())
+                }
+                
+                Spacer()
+                Button("PUBLISH DARE") { dismiss() }.padding().frame(maxWidth: .infinity).background(DareTheme.accent).foregroundColor(.black).clipShape(Capsule())
+            }
+            .padding(30)
+        }
+    }
+}
+
 struct PlaceDareModal: View {
     let title: String
     @Environment(\.dismiss) var dismiss
@@ -813,29 +861,29 @@ struct MockData {
     
     static let featuredDares: [String: [DareItem]] = [
         "All": [
-            DareItem(title: "BTC to $100k", category: "Crypto", time: "12:45:01"),
-            DareItem(title: "Apple to $250", category: "Stocks", time: "05:12:40"),
-            DareItem(title: "Lakers vs Celtics", category: "Sports", time: "01:30:15"),
-            DareItem(title: "Election 2026", category: "Politics", time: "48:00:00")
+            DareItem(title: "BTC to $100k", category: "Crypto", time: "12:45:01", prize: "$50,000"),
+            DareItem(title: "Apple to $250", category: "Stocks", time: "05:12:40", prize: "$12,500"),
+            DareItem(title: "Lakers vs Celtics", category: "Sports", time: "01:30:15", prize: "$5,000"),
+            DareItem(title: "Election 2026", category: "Politics", time: "48:00:00", prize: "$100,000")
         ],
         "Crypto": [
-            DareItem(title: "BTC to $100k", category: "Crypto", time: "12:45:01"),
-            DareItem(title: "ETH to $5k", category: "Crypto", time: "08:10:22"),
-            DareItem(title: "SOL to $250", category: "Crypto", time: "22:15:45")
+            DareItem(title: "BTC to $100k", category: "Crypto", time: "12:45:01", prize: "$50,000"),
+            DareItem(title: "ETH to $5k", category: "Crypto", time: "08:10:22", prize: "$25,000"),
+            DareItem(title: "SOL to $250", category: "Crypto", time: "22:15:45", prize: "$15,000")
         ],
         "Stocks": [
-            DareItem(title: "Apple to $250", category: "Stocks", time: "05:12:40"),
-            DareItem(title: "Tesla Recovery", category: "Stocks", time: "02:44:12"),
-            DareItem(title: "NVIDIA Split?", category: "Stocks", time: "14:20:05")
+            DareItem(title: "Apple to $250", category: "Stocks", time: "05:12:40", prize: "$12,500"),
+            DareItem(title: "Tesla Recovery", category: "Stocks", time: "02:44:12", prize: "$8,000"),
+            DareItem(title: "NVIDIA Split?", category: "Stocks", time: "14:20:05", prize: "$20,000")
         ],
         "Sports": [
-            DareItem(title: "Lakers vs Celtics", category: "Sports", time: "01:30:15"),
-            DareItem(title: "Super Bowl MVP", category: "Sports", time: "72:10:00"),
-            DareItem(title: "World Cup Finals", category: "Sports", time: "96:00:00")
+            DareItem(title: "Lakers vs Celtics", category: "Sports", time: "01:30:15", prize: "$5,000"),
+            DareItem(title: "Super Bowl MVP", category: "Sports", time: "72:10:00", prize: "$30,000"),
+            DareItem(title: "World Cup Finals", category: "Sports", time: "96:00:00", prize: "$200,000")
         ],
         "Politics": [
-            DareItem(title: "Election 2026", category: "Politics", time: "48:00:00"),
-            DareItem(title: "Policy Change", category: "Politics", time: "120:00:00")
+            DareItem(title: "Election 2026", category: "Politics", time: "48:00:00", prize: "$100,000"),
+            DareItem(title: "Policy Change", category: "Politics", time: "120:00:00", prize: "$10,000")
         ]
     ]
     
