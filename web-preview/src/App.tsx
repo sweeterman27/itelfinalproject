@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, Zap, Trophy, User, Star, Search, Bell } from 'lucide-react';
+import { LayoutGrid, Zap, Trophy, User, Star, Search, Bell, Plus } from 'lucide-react';
 
 const MOCK_DATA = {
   usernames: ["DegenDon", "Whale_Watcher", "SolanaSlayer", "AlphaHunter", "EtherGhost", "Luna_Tic", "BullRun_X", "BearKiller", "CryptoVizier", "Zenith_Ops", "Nova_Pulse", "Void_Trader"],
@@ -9,29 +9,29 @@ const MOCK_DATA = {
 
 const FEATURED_DARES = {
   "All": [
-    { title: "BTC to $100k", time: "12:45:01", category: "Crypto" },
-    { title: "Apple to $250", time: "05:12:40", category: "Stocks" },
-    { title: "Lakers vs Celtics", time: "01:30:15", category: "Sports" },
-    { title: "Election 2026", time: "48:00:00", category: "Politics" }
+    { title: "BTC to $100k", time: "12:45:01", category: "Crypto", prize: "$50,000" },
+    { title: "Apple to $250", time: "05:12:40", category: "Stocks", prize: "$12,500" },
+    { title: "Lakers vs Celtics", time: "01:30:15", category: "Sports", prize: "$5,000" },
+    { title: "Election 2026", time: "48:00:00", category: "Politics", prize: "$100,000" }
   ],
   "Crypto": [
-    { title: "BTC to $100k", time: "12:45:01", category: "Crypto" },
-    { title: "ETH to $5k", time: "08:10:22", category: "Crypto" },
-    { title: "SOL to $250", time: "22:15:45", category: "Crypto" }
+    { title: "BTC to $100k", time: "12:45:01", category: "Crypto", prize: "$50,000" },
+    { title: "ETH to $5k", time: "08:10:22", category: "Crypto", prize: "$25,000" },
+    { title: "SOL to $250", time: "22:15:45", category: "Crypto", prize: "$15,000" }
   ],
   "Stocks": [
-    { title: "Apple to $250", time: "05:12:40", category: "Stocks" },
-    { title: "Tesla Recovery", time: "02:44:12", category: "Stocks" },
-    { title: "NVIDIA Split?", time: "14:20:05", category: "Stocks" }
+    { title: "Apple to $250", time: "05:12:40", category: "Stocks", prize: "$12,500" },
+    { title: "Tesla Recovery", time: "02:44:12", category: "Stocks", prize: "$8,000" },
+    { title: "NVIDIA Split?", time: "14:20:05", category: "Stocks", prize: "$20,000" }
   ],
   "Sports": [
-    { title: "Lakers vs Celtics", time: "01:30:15", category: "Sports" },
-    { title: "Super Bowl MVP", time: "72:10:00", category: "Sports" },
-    { title: "World Cup Finals", time: "96:00:00", category: "Sports" }
+    { title: "Lakers vs Celtics", time: "01:30:15", category: "Sports", prize: "$5,000" },
+    { title: "Super Bowl MVP", time: "72:10:00", category: "Sports", prize: "$30,000" },
+    { title: "World Cup Finals", time: "96:00:00", category: "Sports", prize: "$200,000" }
   ],
   "Politics": [
-    { title: "Election 2026", time: "48:00:00", category: "Politics" },
-    { title: "Policy Change", time: "120:00:00", category: "Politics" }
+    { title: "Election 2026", time: "48:00:00", category: "Politics", prize: "$100,000" },
+    { title: "Policy Change", time: "120:00:00", category: "Politics", prize: "$10,000" }
   ]
 };
 
@@ -274,8 +274,9 @@ const MarketDetailView: React.FC<{ id: string, onClose: () => void }> = ({ id, o
 const ExploreView: React.FC<{ 
   isWalletConnected: boolean, 
   onConnect: () => void, 
-  onTapDare: (title: string) => void 
-}> = ({ isWalletConnected, onConnect, onTapDare }) => {
+  onTapDare: (title: string) => void,
+  onOpenCreate: () => void
+}> = ({ isWalletConnected, onConnect, onTapDare, onOpenCreate }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -341,6 +342,7 @@ const ExploreView: React.FC<{
                 <div>
                   <div style={{ fontWeight: 700 }}>{dare.title}</div>
                   <div style={{ fontSize: '10px', opacity: 0.5 }}>{dare.category} • Ends in {dare.time}</div>
+                  <div style={{ fontSize: '12px', color: '#CCFF00', fontWeight: 800, marginTop: '4px' }}>Prize Pool: {dare.prize}</div>
                 </div>
                 <button 
                   onClick={() => onTapDare(dare.title)}
@@ -352,6 +354,21 @@ const ExploreView: React.FC<{
             ))}
           </AnimatePresence>
         </div>
+      </motion.div>
+
+      {/* Floating Action Button */}
+      <motion.div 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={onOpenCreate}
+        style={{ 
+          position: 'fixed', bottom: '100px', right: '20px', width: '56px', height: '56px', 
+          background: '#CCFF00', borderRadius: '50%', display: 'flex', justifyContent: 'center', 
+          alignItems: 'center', color: 'black', boxShadow: '0 0 20px rgba(204, 255, 0, 0.4)',
+          cursor: 'pointer', zIndex: 1000
+        }}
+      >
+        <Plus size={24} strokeWidth={3} />
       </motion.div>
 
       <AnimatePresence>
@@ -478,8 +495,9 @@ const MainContainer: React.FC<{
   setSelectedTab: (i: number) => void,
   isWalletConnected: boolean,
   onConnect: () => void,
-  onTapDare: (title: string) => void
-}> = ({ selectedTab, setSelectedTab, isWalletConnected, onConnect, onTapDare }) => {
+  onTapDare: (title: string) => void,
+  onOpenCreate: () => void
+}> = ({ selectedTab, setSelectedTab, isWalletConnected, onConnect, onTapDare, onOpenCreate }) => {
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -489,7 +507,14 @@ const MainContainer: React.FC<{
       <NotificationToast />
       
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '120px' }}>
-        {selectedTab === 0 && <ExploreView isWalletConnected={isWalletConnected} onConnect={onConnect} onTapDare={onTapDare} />}
+        {selectedTab === 0 && (
+          <ExploreView 
+            isWalletConnected={isWalletConnected} 
+            onConnect={onConnect} 
+            onTapDare={onTapDare} 
+            onOpenCreate={onOpenCreate}
+          />
+        )}
         {selectedTab === 1 && <FeedView />}
         {selectedTab === 2 && <LeaderboardView />}
         {selectedTab === 3 && <ProfileView isConnected={isWalletConnected} />}
@@ -504,6 +529,29 @@ const MainContainer: React.FC<{
     </motion.div>
   );
 };
+
+const CreateDareModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <motion.div 
+    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: '#000', zIndex: 4000, padding: '20px' }}
+  >
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px', marginTop: '40px' }}>
+      <div style={{ color: '#CCFF00', fontWeight: 800, fontSize: '12px' }}>CREATE NEW DARE</div>
+      <div onClick={onClose} style={{ cursor: 'pointer', opacity: 0.3 }}>✖</div>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+       <div className="glass-card" style={{ padding: '20px' }}>
+          <div style={{ opacity: 0.5, fontSize: '12px', marginBottom: '8px' }}>Market Title</div>
+          <input type="text" placeholder="e.g. BTC to $200k" style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', fontWeight: 800, width: '100%', outline: 'none' }} />
+       </div>
+       <div className="glass-card" style={{ padding: '20px' }}>
+          <div style={{ opacity: 0.5, fontSize: '12px', marginBottom: '8px' }}>Prize Pool</div>
+          <input type="text" placeholder="e.g. $10,000" style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', fontWeight: 800, width: '100%', outline: 'none' }} />
+       </div>
+       <button className="neon-btn" onClick={onClose} style={{ marginTop: '20px' }}>PUBLISH DARE</button>
+    </div>
+  </motion.div>
+);
 
 const PlaceDareModal: React.FC<{ title: string, onClose: () => void }> = ({ title, onClose }) => {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -624,6 +672,7 @@ const App: React.FC = () => {
   const [hasEntered, setHasEntered] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
   const [isShowingPlaceDare, setIsShowingPlaceDare] = useState(false);
+  const [isShowingCreateDare, setIsShowingCreateDare] = useState(false);
   const [selectedMarketTitle, setSelectedMarketTitle] = useState("");
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [isShowingWalletModal, setIsShowingWalletModal] = useState(false);
@@ -642,6 +691,7 @@ const App: React.FC = () => {
             setSelectedTab={setSelectedTab} 
             isWalletConnected={isWalletConnected}
             onConnect={() => setIsShowingWalletModal(true)}
+            onOpenCreate={() => setIsShowingCreateDare(true)}
             onTapDare={(title) => {
               setSelectedMarketTitle(title);
               setIsShowingPlaceDare(true);
@@ -655,6 +705,11 @@ const App: React.FC = () => {
           <PlaceDareModal 
             title={selectedMarketTitle} 
             onClose={() => setIsShowingPlaceDare(false)} 
+          />
+        )}
+        {isShowingCreateDare && (
+          <CreateDareModal 
+            onClose={() => setIsShowingCreateDare(false)} 
           />
         )}
         {isShowingWalletModal && (
