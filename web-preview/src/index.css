@@ -1,0 +1,152 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #1a1a1a;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Dare Theme Tokens */
+  --dare-bg: #000000;
+  --dare-accent: #CCFF00;
+  --dare-accent-rgb: 204, 255, 0;
+  --dare-glass: rgba(255, 255, 255, 0.05);
+  --dare-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Mobile Frame */
+.iphone-frame {
+  width: 390px;
+  height: 844px;
+  background: var(--dare-bg);
+  border-radius: 48px;
+  border: 12px solid #222;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+}
+
+.iphone-notch {
+  width: 160px;
+  height: 34px;
+  background: #222;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  z-index: 1000;
+}
+
+/* App Styles */
+.app-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.glass-card {
+  background: var(--dare-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--dare-border);
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.neon-btn {
+  background: var(--dare-accent);
+  color: black;
+  font-weight: 800;
+  padding: 16px 32px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(var(--dare-accent-rgb), 0.3);
+  transition: transform 0.2s;
+}
+
+.neon-btn:hover {
+  transform: scale(1.05);
+}
+
+.tab-bar {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  right: 20px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--dare-border);
+  border-radius: 9999px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+}
+
+.tab-item {
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.tab-item.active {
+  color: var(--dare-accent);
+}
+
+/* Bento Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.bento-item {
+  min-height: 140px;
+}
+
+.bento-item.large {
+  grid-row: span 1.2;
+  min-height: 180px;
+}
+
+/* Typography */
+h1 {
+  font-size: 34px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--dare-accent);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
